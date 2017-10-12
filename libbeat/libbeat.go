@@ -11,6 +11,6 @@ var RootCmd = cmd.GenRootCmd(mock.Name, mock.Version, mock.New)
 
 func main() {
 	if err := RootCmd.Execute(); err != nil {
-		os.Exit(1)
+        		os.Exit(1)
 	}
 }
