@@ -18,15 +18,15 @@ type mapper map[string]map[string]interface{}
 // - Ouput
 //
 // Specific modules can be implemented by a specific beat.
-type Registry struct {
+type registry struct {
 	sync.RWMutex
 	namespaces mapper
 	log        *logp.Logger
 }
 
 // NewRegistry returns a new registry.
-func NewRegistry() *Registry {
-	return &Registry{
+func newRegistry() *registry {
+	return &registry{
 		namespaces: make(mapper),
 		log:        logp.NewLogger("registry"),
 	}
@@ -34,7 +34,7 @@ func NewRegistry() *Registry {
 
 // Register registers a new module into a specific namespace, it will lazy creates the namespace,
 // module name must be unique in the registry.
-func (r *Registry) Register(namespace, moduleName string, factory interface{}) error {
+func (r *registry) Register(namespace, moduleName string, factory interface{}) error {
 	r.Lock()
 	defer r.Unlock()
 
@@ -61,7 +61,7 @@ func (r *Registry) Register(namespace, moduleName string, factory interface{}) e
 }
 
 // Unregister removes a plugin from the registry.
-func (r *Registry) Unregister(namespace, moduleName string) error {
+func (r *registry) Unregister(namespace, moduleName string) error {
 	r.Lock()
 	defer r.Unlock()
 
@@ -81,7 +81,7 @@ func (r *Registry) Unregister(namespace, moduleName string) error {
 }
 
 // Module returns a specific module from a specific namespace.
-func (r *Registry) Module(namespace, moduleName string) (interface{}, error) {
+func (r *registry) Module(namespace, moduleName string) (interface{}, error) {
 	r.RLock()
 	defer r.RUnlock()
 
@@ -99,7 +99,7 @@ func (r *Registry) Module(namespace, moduleName string) (interface{}, error) {
 }
 
 // Size returns the number of registered plugins in the registry.
-func (r *Registry) Size() int {
+func (r *registry) Size() int {
 	r.RLock()
 	defer r.RUnlock()
 
@@ -111,9 +111,9 @@ func (r *Registry) Size() int {
 	return c
 }
 
-// Fix the registry
-// Add the new method on the output package to use the new registry.
-// Wrap the factory of the output the new registry
-// Make sure we have some kind of compaibility layer
-// Make next PR to move the modules to new registry
-// Allow to inject DI to beats instance (backward compaibility?)
+// - [x] Fix the registry
+// - [x] Add the new method on the output package to use the new registry.
+// - [ ] Wrap the factory of the output the new registry
+// - [ ] Make sure we have some kind of compaibility layer
+// - [ ] Make next PR to move the modules to new registry
+// - [ ] Allow to inject DI to beats instance (backward compaibility?)

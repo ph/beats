@@ -15,8 +15,11 @@ import (
 	"github.com/elastic/beats/libbeat/common/cfgwarn"
 	"github.com/elastic/beats/libbeat/kibana"
 	"github.com/elastic/beats/libbeat/logp"
+	"github.com/elastic/beats/libbeat/module"
 	"github.com/elastic/beats/libbeat/monitoring"
 	"github.com/elastic/beats/libbeat/outputs/elasticsearch"
+	"github.com/elastic/beats/libbeat/outputs/kafka"
+	"github.com/elastic/beats/libbeat/outputs/logstash"
 
 	fbautodiscover "github.com/elastic/beats/filebeat/autodiscover"
 	"github.com/elastic/beats/filebeat/channel"
@@ -47,6 +50,19 @@ type Filebeat struct {
 
 // New creates a new Filebeat pointer instance.
 func New(b *beat.Beat, rawConfig *common.Config) (beat.Beater, error) {
+	module.MustBundle(
+		module.MustBundle(
+			elasticsearch.Module,
+			logstash.Module,
+			kafka.Module,
+		),
+	)
+
+	err := b.RegisterModules(bundle)
+	if err != nil {
+		return nil, fmt.Errorf("could not register modules, error: %s", err)
+	}
+
 	config := cfg.DefaultConfig
 	if err := rawConfig.Unpack(&config); err != nil {
 		return nil, fmt.Errorf("Error reading config file: %v", err)

@@ -13,6 +13,9 @@ import (
 	"github.com/elastic/beats/libbeat/outputs/outil"
 )
 
+// Module expose the elasticsearch output as a module
+var Module = outputs.Module("elasticsearch", makeES)
+
 func init() {
 	outputs.RegisterType("elasticsearch", makeES)
 }

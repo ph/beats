@@ -16,6 +16,9 @@ import (
 	"github.com/elastic/beats/libbeat/outputs/outil"
 )
 
+// Module expose the kafka output as a module
+var Module = outputs.Module("kafka", makeKafka)
+
 type kafka struct {
 	config kafkaConfig
 	topic  outil.Selector

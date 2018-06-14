@@ -16,6 +16,9 @@ const (
 
 var debugf = logp.MakeDebug("logstash")
 
+// Module exposes the Logstash module
+var Module = outputs.Module("logstash", makeLogstash)
+
 func init() {
 	outputs.RegisterType("logstash", makeLogstash)
 }
