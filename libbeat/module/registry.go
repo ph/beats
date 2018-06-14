@@ -60,10 +60,31 @@ func (r *Registry) Register(namespace, moduleName string, factory interface{}) e
 	return nil
 }
 
-// Unregister(namespace, module)
+// Unregister removes a plugin from the registry.
+func (r *Registry) Unregister(namespace, moduleName string) error {
+	r.Lock()
+	defer r.Unlock()
+
+	v, found := r.namespaces[namespace]
+	if !found {
+		return fmt.Errorf("unknown namespace named '%s'", namespace)
+	}
+
+	_, found = v[moduleName]
+	if !found {
+		return fmt.Errorf("unknown module '%s' in namespace '%s'", moduleName, namespace)
+	}
+
+	delete(r.namespaces[namespace], moduleName)
+
+	return nil
+}
 
 // Module returns a specific module from a specific namespace.
 func (r *Registry) Module(namespace, moduleName string) (interface{}, error) {
+	r.RLock()
+	defer r.RUnlock()
+
 	v, found := r.namespaces[namespace]
 	if !found {
 		return nil, fmt.Errorf("unknown namespace named '%s'", namespace)
@@ -81,6 +102,7 @@ func (r *Registry) Module(namespace, moduleName string) (interface{}, error) {
 func (r *Registry) Size() int {
 	r.RLock()
 	defer r.RUnlock()
+
 	c := 0
 	for _, namespace := range r.namespaces {
 		c += len(namespace)
