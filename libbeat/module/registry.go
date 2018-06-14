@@ -98,6 +98,26 @@ func (r *registry) Module(namespace, moduleName string) (interface{}, error) {
 	return m, nil
 }
 
+// Modules returns the modules for a specific namespace.
+func (r *registry) Modules(namespace string) ([]interface{}, error) {
+	r.RLock()
+	defer r.RUnlock()
+
+	v, found := r.namespaces[namespace]
+	if !found {
+		return nil, fmt.Errorf("unknown namespace named '%s'", namespace)
+	}
+
+	list := make([]interface{}, len(v))
+	c := 0
+	for _, module := range v {
+		list[c] = module
+		c++
+	}
+
+	return list, nil
+}
+
 // Size returns the number of registered plugins in the registry.
 func (r *registry) Size() int {
 	r.RLock()
