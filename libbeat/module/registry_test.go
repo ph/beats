@@ -54,6 +54,13 @@ func TestModule(t *testing.T) {
 		}
 		assert.NoError(t, err)
 	})
+
+	t.Run("when namespace doesn't exist", func(t *testing.T) {
+		_, err := r.Module("hello", "foo")
+		if !assert.Error(t, err) {
+			return
+		}
+	})
 }
 
 func TestModules(t *testing.T) {
