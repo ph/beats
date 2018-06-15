@@ -10,6 +10,7 @@ import (
 
 	"github.com/elastic/beats/libbeat/autodiscover"
 	"github.com/elastic/beats/libbeat/beat"
+	"github.com/elastic/beats/libbeat/bootstrap"
 	"github.com/elastic/beats/libbeat/cfgfile"
 	"github.com/elastic/beats/libbeat/common"
 	"github.com/elastic/beats/libbeat/common/cfgwarn"
@@ -52,16 +53,17 @@ type Filebeat struct {
 func New(b *beat.Beat, rawConfig *common.Config) (beat.Beater, error) {
 	module.MustBundle(
 		module.MustBundle(
+			bootstrap.ModuleLogSystemInfo,
 			elasticsearch.Module,
 			logstash.Module,
 			kafka.Module,
 		),
 	)
 
-	err := b.RegisterModules(bundle)
-	if err != nil {
-		return nil, fmt.Errorf("could not register modules, error: %s", err)
-	}
+	// err = b.RegisterModules(bundle)
+	// if err != nil {
+	// 	return nil, fmt.Errorf("could not register modules, error: %s", err)
+	// }
 
 	config := cfg.DefaultConfig
 	if err := rawConfig.Unpack(&config); err != nil {

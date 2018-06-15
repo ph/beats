@@ -5,6 +5,8 @@ import "fmt"
 // Registry is the global plugin registry.
 var Registry = newRegistry()
 
+// Module
+// TODO: Make it an interface and use it in the registry.
 type Module struct {
 	namespace string
 	name      string
