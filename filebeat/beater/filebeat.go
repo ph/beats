@@ -10,7 +10,6 @@ import (
 
 	"github.com/elastic/beats/libbeat/autodiscover"
 	"github.com/elastic/beats/libbeat/beat"
-	"github.com/elastic/beats/libbeat/bootstrap"
 	"github.com/elastic/beats/libbeat/cfgfile"
 	"github.com/elastic/beats/libbeat/common"
 	"github.com/elastic/beats/libbeat/common/cfgwarn"
@@ -49,22 +48,25 @@ type Filebeat struct {
 	done           chan struct{}
 }
 
-// New creates a new Filebeat pointer instance.
-func New(b *beat.Beat, rawConfig *common.Config) (beat.Beater, error) {
-	module.MustBundle(
+// Configure all the module that the beats require
+// TODO: Remove this Init() in 7.0 we need to refactor the interface.
+func init() {
+	bundle := module.MustBundle(
 		module.MustBundle(
-			bootstrap.ModuleLogSystemInfo,
 			elasticsearch.Module,
 			logstash.Module,
 			kafka.Module,
-		),
+		)...,
 	)
 
-	// err = b.RegisterModules(bundle)
-	// if err != nil {
-	// 	return nil, fmt.Errorf("could not register modules, error: %s", err)
-	// }
+	err := module.RegisterModules(bundle)
+	if err != nil {
+		panic(fmt.Sprintf("could not register bundle, error: %s", err))
+	}
+}
 
+// New creates a new Filebeat pointer instance.
+func New(b *beat.Beat, rawConfig *common.Config) (beat.Beater, error) {
 	config := cfg.DefaultConfig
 	if err := rawConfig.Unpack(&config); err != nil {
 		return nil, fmt.Errorf("Error reading config file: %v", err)

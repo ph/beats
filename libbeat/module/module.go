@@ -1,7 +1,5 @@
 package module
 
-import "fmt"
-
 // Registry is the global plugin registry.
 var Registry = newRegistry()
 
@@ -13,31 +11,33 @@ type Module struct {
 	factory   interface{}
 }
 
+// NewModule creates a new module.
 func NewModule(namespace, name string, factory interface{}) Module {
 	return Module{namespace: namespace, name: name, factory: factory}
 }
 
-// Bundle takes a list of of module and return them grouped by namespace
-func Bundle(bundles ...interface{}) ([]Module, error) {
+// Bundle merge multiple bundle declaration into one.
+func Bundle(bundles ...Module) ([]Module, error) {
 	var list []Module
 	for _, bundle := range bundles {
-		switch v := bundle.(type) {
-		case []Module:
-			list = append(list, v...)
-		case Module:
-			list = append(list, v)
-		default:
-			return nil, fmt.Errorf("incomptible type for bundle, expected 'Module' received '%T'", v)
-		}
+		list = append(list, bundle)
 	}
 	return list, nil
 }
 
 // MustBundle takes a list of modules panic if any errors is detected when bundling the modules.
-func MustBundle(bundles ...interface{}) []Module {
-	modules, err := Bundle(bundles)
+func MustBundle(bundles ...Module) []Module {
+	modules, err := Bundle(bundles...)
 	if err != nil {
 		panic(err)
 	}
 	return modules
+}
+
+// RegisterModules registers a list of modules
+func RegisterModules(bundles []Module) error {
+	for _, module := range bundles {
+		Registry.Register(module.namespace, module.name, module.factory)
+	}
+	return nil
 }
