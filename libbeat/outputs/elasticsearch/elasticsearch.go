@@ -13,8 +13,8 @@ import (
 	"github.com/elastic/beats/libbeat/outputs/outil"
 )
 
-// Module expose the elasticsearch output as a module
-var Module = outputs.Module("elasticsearch", makeES)
+// Feature expose the elasticsearch output as a module
+var Feature = outputs.Feature("elasticsearch", makeES)
 
 func init() {
 	outputs.RegisterType("elasticsearch", makeES)

@@ -13,11 +13,12 @@ import (
 	"github.com/elastic/beats/libbeat/cfgfile"
 	"github.com/elastic/beats/libbeat/common"
 	"github.com/elastic/beats/libbeat/common/cfgwarn"
+	"github.com/elastic/beats/libbeat/feature"
 	"github.com/elastic/beats/libbeat/kibana"
 	"github.com/elastic/beats/libbeat/logp"
-	"github.com/elastic/beats/libbeat/module"
 	"github.com/elastic/beats/libbeat/monitoring"
 	"github.com/elastic/beats/libbeat/outputs/elasticsearch"
+	"github.com/elastic/beats/libbeat/outputs/fileout"
 	"github.com/elastic/beats/libbeat/outputs/kafka"
 	"github.com/elastic/beats/libbeat/outputs/logstash"
 
@@ -51,15 +52,16 @@ type Filebeat struct {
 // Configure all the module that the beats require
 // TODO: Remove this Init() in 7.0 we need to refactor the interface.
 func init() {
-	bundle := module.MustBundle(
-		module.MustBundle(
-			elasticsearch.Module,
-			logstash.Module,
-			kafka.Module,
+	bundle := feature.MustBundle(
+		feature.MustBundle(
+			elasticsearch.Feature,
+			logstash.Feature,
+			kafka.Feature,
+			fileout.Feature,
 		)...,
 	)
 
-	err := module.RegisterModules(bundle)
+	err := feature.Register(bundle)
 	if err != nil {
 		panic(fmt.Sprintf("could not register bundle, error: %s", err))
 	}

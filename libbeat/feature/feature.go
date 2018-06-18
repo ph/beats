@@ -1,4 +1,4 @@
-package module
+package feature
 
 // Registry is the global plugin registry.
 var Registry = newRegistry()
@@ -34,8 +34,8 @@ func MustBundle(bundles ...Module) []Module {
 	return modules
 }
 
-// RegisterModules registers a list of modules
-func RegisterModules(bundles []Module) error {
+// Register registers a list of modules
+func Register(bundles []Module) error {
 	for _, module := range bundles {
 		Registry.Register(module.namespace, module.name, module.factory)
 	}

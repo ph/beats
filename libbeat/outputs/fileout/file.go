@@ -13,9 +13,8 @@ import (
 	"github.com/elastic/beats/libbeat/publisher"
 )
 
-func init() {
-	outputs.RegisterType("file", makeFileout)
-}
+// Feature creates a file output.
+var Feature = outputs.Feature("file", makeFileout)
 
 type fileOutput struct {
 	beat     beat.Info
