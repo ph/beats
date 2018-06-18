@@ -11,7 +11,7 @@ import (
 )
 
 // pluginKey is the namespace in the registry for all the outputs feature.
-var pluginKey = "libbeat.outputs"
+var pluginKey = "libbeat.output"
 
 // Factory is used by output plugins to build an output instance
 type Factory func(
