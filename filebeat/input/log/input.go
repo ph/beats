@@ -33,12 +33,8 @@ var (
 	errHarvesterLimit = errors.New("harvester limit reached")
 )
 
-func init() {
-	err := input.Register("log", NewInput)
-	if err != nil {
-		panic(err)
-	}
-}
+// Feature exposes the docker input.
+var Feature = input.Feature("log", NewInput)
 
 // Input contains the input and its config
 type Input struct {

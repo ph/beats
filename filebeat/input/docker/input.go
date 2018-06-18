@@ -13,12 +13,8 @@ import (
 	"github.com/pkg/errors"
 )
 
-func init() {
-	err := input.Register("docker", NewInput)
-	if err != nil {
-		panic(err)
-	}
-}
+// Feature exposes the docker input.
+var Feature = input.Feature("docker", NewInput)
 
 // NewInput creates a new docker input
 func NewInput(

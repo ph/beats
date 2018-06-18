@@ -68,12 +68,8 @@ var (
 	}
 )
 
-func init() {
-	err := input.Register("syslog", NewInput)
-	if err != nil {
-		panic(err)
-	}
-}
+// Feature exposes the Syslog input.
+var Feature = input.Feature("syslog", NewInput)
 
 // Input define a syslog input
 type Input struct {

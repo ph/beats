@@ -16,12 +16,8 @@ import (
 	"github.com/elastic/beats/libbeat/logp"
 )
 
-func init() {
-	err := input.Register("udp", NewInput)
-	if err != nil {
-		panic(err)
-	}
-}
+// Feature exposes the UDP input.
+var Feature = input.Feature("udp", NewInput)
 
 // Input defines a udp input to receive event on a specific host:port.
 type Input struct {

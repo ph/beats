@@ -16,12 +16,8 @@ import (
 	"github.com/elastic/beats/libbeat/logp"
 )
 
-func init() {
-	err := input.Register("tcp", NewInput)
-	if err != nil {
-		panic(err)
-	}
-}
+// Feature exposes the TCP input.
+var Feature = input.Feature("tcp", NewInput)
 
 // Input for TCP connection
 type Input struct {

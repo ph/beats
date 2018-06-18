@@ -14,12 +14,8 @@ import (
 	"github.com/elastic/beats/libbeat/logp"
 )
 
-func init() {
-	err := input.Register("redis", NewInput)
-	if err != nil {
-		panic(err)
-	}
-}
+// Feature exposes the redis input.
+var Feature = input.Feature("redis", NewInput)
 
 // Input is a input for redis
 type Input struct {

@@ -20,10 +20,13 @@ type Context struct {
 // Factory is used to register functions creating new Input instances.
 type Factory = func(config *common.Config, connector channel.Connector, context Context) (Input, error)
 
-var registry = make(map[string]Factory)
-
 func Register(name string, factory Factory) error {
 	return feature.Registry.Register(pluginKey, name, factory)
+}
+
+// Feature expose a new input module to the registry.
+func Feature(name string, f Factory) feature.Module {
+	return feature.NewModule(pluginKey, name, f)
 }
 
 func GetFactory(name string) (Factory, error) {
@@ -38,9 +41,4 @@ func GetFactory(name string) (Factory, error) {
 	}
 
 	return factory, nil
-}
-
-// Feature expose a new inputs as a feature.
-func Feature(name string, f Factory) {
-	feature.NewModule(pluginKey, name, f)
 }

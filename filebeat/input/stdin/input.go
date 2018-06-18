@@ -12,12 +12,8 @@ import (
 	"github.com/elastic/beats/libbeat/logp"
 )
 
-func init() {
-	err := input.Register("stdin", NewInput)
-	if err != nil {
-		panic(err)
-	}
-}
+// Feature exposes the STDIN input.
+var Feature = input.Feature("stdin", NewInput)
 
 // Input is an input for stdin
 type Input struct {

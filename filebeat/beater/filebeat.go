@@ -27,6 +27,12 @@ import (
 	cfg "github.com/elastic/beats/filebeat/config"
 	"github.com/elastic/beats/filebeat/crawler"
 	"github.com/elastic/beats/filebeat/fileset"
+	"github.com/elastic/beats/filebeat/input/docker"
+	"github.com/elastic/beats/filebeat/input/log"
+	"github.com/elastic/beats/filebeat/input/stdin"
+	"github.com/elastic/beats/filebeat/input/syslog"
+	"github.com/elastic/beats/filebeat/input/tcp"
+	"github.com/elastic/beats/filebeat/input/udp"
 	"github.com/elastic/beats/filebeat/registrar"
 
 	// Add filebeat level processors
@@ -53,12 +59,16 @@ type Filebeat struct {
 // TODO: Remove this Init() in 7.0 we need to refactor the interface.
 func init() {
 	bundle := feature.MustBundle(
-		feature.MustBundle(
-			elasticsearch.Feature,
-			logstash.Feature,
-			kafka.Feature,
-			fileout.Feature,
-		)...,
+		elasticsearch.Feature,
+		logstash.Feature,
+		kafka.Feature,
+		fileout.Feature,
+		docker.Feature,
+		log.Feature,
+		stdin.Feature,
+		tcp.Feature,
+		udp.Feature,
+		syslog.Feature,
 	)
 
 	err := feature.Register(bundle)
