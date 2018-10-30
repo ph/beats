@@ -672,12 +672,12 @@
 			"versionExact": "v0.0.3"
 		},
 		{
-			"checksumSHA1": "MK8/w0Idj7kRBUiBabARPdm9hOo=",
+			"checksumSHA1": "Yb61Nqnh+3igFci61hv9WYgk/hc=",
 			"path": "github.com/elastic/go-ucfg",
-			"revision": "581f7b1fe9d84f4c18ef0694d6e0eb944a925dae",
-			"revisionTime": "2018-07-13T14:04:29Z",
-			"version": "v0.6.1",
-			"versionExact": "v0.6.1"
+			"revision": "92d43887f91851c9936621665af7f796f4d03412",
+			"revisionTime": "2018-10-26T17:42:06Z",
+			"version": "v0.6.5",
+			"versionExact": "v0.6.5"
 		},
 		{
 			"checksumSHA1": "X+R/CD8SokJrmlxFTx2nSevRDhQ=",
@@ -1387,7 +1387,7 @@
 			"revision": "e57e3eeb33f795204c1ca35f56c44f83227c6e66",
 			"revisionTime": "2017-05-08T18:43:26Z"
 		},
-		{
+        {
 			"checksumSHA1": "Le1psgZO0t6mRg6oY5dmnjH13hk=",
 			"path": "github.com/stretchr/testify/assert",
 			"revision": "b91bfb9ebec76498946beb6af7c0230c7cc7ba6c",
@@ -1400,7 +1400,7 @@
 			"path": "github.com/stretchr/testify/require",
 			"revision": "f35b8ab0b5a2cef36673838d662e249dd9c94686",
 			"revisionTime": "2018-05-06T18:05:49Z"
-		},
+        },
 		{
 			"checksumSHA1": "CpcG17Q/0k1g2uy8AL26Uu7TouU=",
 			"path": "github.com/theckman/go-flock",
