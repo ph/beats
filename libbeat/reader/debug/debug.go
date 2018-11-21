@@ -124,6 +124,7 @@ func (r *Reader) checkPredicate() bool {
 }
 
 // IsNullByte returns true if we receive a 0 or null byte.
+// NOTES: we do not take into consideration UTF-8 code points.
 func IsNullByte(b byte) bool {
 	return b == 0x00
 }
