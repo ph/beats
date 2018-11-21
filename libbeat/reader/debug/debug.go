@@ -121,8 +121,8 @@ func (r *Reader) checkPendingBytes() {
 	}
 }
 
-func (r *Reader) logReporter(pos int, raw []byte) {
-	r.log.Info("Matching byte found, position %d raw: %+v", pos, raw)
+func (r *Reader) logReporter(pos int, _ []byte) {
+	r.log.Infof("Matching byte found at position: %d", pos)
 }
 
 func (r *Reader) checkPredicate() bool {

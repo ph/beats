@@ -591,9 +591,11 @@ func (h *Harvester) newLogFileReader() (reader.Reader, error) {
 }
 
 func appendDebugReaders(reader io.Reader, configs map[string]*common.Config) (io.Reader, error) {
+	logp.Debug("harvester", "Enabling any debug readers", configs)
 	for key, config := range configs {
 		switch key {
 		case "detect_null_bytes":
+			logp.Warn("Detect null bytes")
 			c := debug.DefaultConfig
 			err := config.Unpack(&c)
 			reader, err = debug.NewReader(reader, c.BufferSize, c.MaxExecution, debug.IsNullByte, nil)

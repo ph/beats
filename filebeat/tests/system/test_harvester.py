@@ -818,3 +818,35 @@ class Test(BaseTest):
 
         output = self.read_output_json()
         assert output[2]["message"] == "hello world2"
+
+    def test_debug_reader(self):
+        """
+        Test that you can enable a debug reader.
+        """
+        self.render_config_template(
+            path=os.path.abspath(self.working_dir) + "/log/*",
+            encoding="utf-16be",
+            debug_readers=["detect_null_bytes"],
+        )
+
+        os.mkdir(self.working_dir + "/log/")
+
+        logfile = self.working_dir + "/log/test.log"
+
+        with io.open(logfile, 'w') as file:
+            file.write(u"hello world1")
+            file.write(u"\n")
+            file.write(u"\u0000")
+            file.write(u"\n")
+            file.write(u"hello world2")
+            file.write(u"\n")
+            file.write(u"\u0000")
+
+        filebeat = self.start_beat()
+
+        # Wait until error shows up
+        self.wait_until(
+            lambda: self.log_contains("Matching byte found at position: 13"),
+            max_timeout=60)
+
+        filebeat.check_kill_and_wait()
