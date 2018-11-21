@@ -22,13 +22,15 @@ func TestIsGarbage(t *testing.T) {
 }
 
 type reporter struct {
-	Pos int
-	Raw []byte
+	Pos   int
+	Raw   []byte
+	Count int
 }
 
-func (r *reporter) log(pos int, raw []byte) {
+func (r *reporter) onReport(pos int, raw []byte) {
 	r.Pos = pos
 	r.Raw = raw
+	r.Count++
 }
 
 func TestReader(t *testing.T) {
@@ -36,6 +38,7 @@ func TestReader(t *testing.T) {
 	t.Run("no garbage byte found", testNoGarbage)
 	t.Run("consume all bytes", testConsumeAll)
 	t.Run("empty buffer", testEmptyBuffer)
+	t.Run("should become silent", testDisable)
 }
 
 func testGarbage(t *testing.T) {
@@ -49,7 +52,7 @@ func testGarbage(t *testing.T) {
 
 	r := &reporter{}
 
-	debug, _ := NewReader(&b, 8, 20, IsNullByte, r.log)
+	debug, _ := NewReader(&b, 8, 20, IsNullByte, r.onReport)
 	data := make([]byte, 9)
 	n, err := debug.Read(data)
 	if !assert.NoError(t, err) {
@@ -67,7 +70,7 @@ func testNoGarbage(t *testing.T) {
 
 	r := &reporter{}
 
-	debug, _ := NewReader(&b, 8, 20, IsNullByte, r.log)
+	debug, _ := NewReader(&b, 8, 20, IsNullByte, r.onReport)
 	data := make([]byte, 9)
 	n, err := debug.Read(data)
 	if !assert.NoError(t, err) {
@@ -109,4 +112,29 @@ func testEmptyBuffer(t *testing.T) {
 
 	assert.Equal(t, io.EOF, err)
 	assert.Equal(t, 0, n)
+}
+
+func testDisable(t *testing.T) {
+	var b bytes.Buffer
+	b.Write([]byte{'a', 'b', 'c', 'd', 0x00, 'e'})
+	b.Write([]byte{'a', 'b', 'c', 'd', 0x00, 'e'})
+	b.Write([]byte{'a', 'b', 'c', 'd', 0x00, 'e'})
+	b.Write([]byte{'a', 'b', 'c', 'd', 0x00, 'e'})
+	b.Write([]byte{'a', 'b', 'c', 'd', 0x00, 'e'})
+	b.Write([]byte{'a', 'b', 'c', 'd', 0x00, 'e'})
+	b.Write([]byte{'a', 'b', 'c', 'd', 0x00, 'e'})
+
+	dup := make([]byte, b.Len())
+	copy(dup, b.Bytes())
+
+	r := &reporter{}
+
+	debug, _ := NewReader(&b, 3, 2, IsNullByte, r.onReport)
+	consumed := 0
+	for consumed < b.Len() {
+		n, _ := debug.Read(make([]byte, 5))
+		consumed += n
+	}
+
+	assert.Equal(t, 2, r.Count)
 }

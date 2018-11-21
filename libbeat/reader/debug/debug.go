@@ -58,9 +58,8 @@ func NewReader(
 // Read will proxy the read call to the original reader and will periodically checks the values of
 // bytes in the buffer.
 func (r *Reader) Read(p []byte) (int, error) {
-
 	if r.executionCount > r.maxMatchedExecution {
-		r.startDebugReader.Do(func() {
+		r.stopDebugReader.Do(func() {
 			// cleanup any remaining bytes in the buffer.
 			r.checkPendingBytes()
 			r.log.Debug("Stopping debug reader, max execution reached.")
@@ -70,7 +69,7 @@ func (r *Reader) Read(p []byte) (int, error) {
 
 	n, err := r.reader.Read(p)
 
-	r.stopDebugReader.Do(func() {
+	r.startDebugReader.Do(func() {
 		r.log.Debug("Starting debug reader")
 	})
 
@@ -81,23 +80,22 @@ func (r *Reader) Read(p []byte) (int, error) {
 		for byteToConsume > 0 {
 			// optimize what we can consume per iteration.
 			available = r.bufferSize - r.buffer.Len()
-			if available > n {
-				available = n
-			}
 
 			upTo = consumeAt + available
-			if upTo > len(p)-1 {
-				upTo = len(p) - 1
+			if upTo > len(p) {
+				upTo = len(p)
 			}
 
 			r.buffer.Write(p[consumeAt:upTo])
+
 			byteToConsume -= upTo - consumeAt + 1
 			consumeAt = upTo
 
 			if r.buffer.Len() == r.bufferSize {
-				r.checkPredicate()
+				if r.executionCount < r.maxMatchedExecution && r.checkPredicate() {
+					r.executionCount++
+				}
 				r.buffer.Reset()
-				r.executionCount++
 			}
 		}
 	}
@@ -115,13 +113,14 @@ func (r *Reader) logReporter(pos int, raw []byte) {
 	r.log.Debugf("Matching byte found, position %d raw: %+v", pos, raw)
 }
 
-func (r *Reader) checkPredicate() {
+func (r *Reader) checkPredicate() bool {
 	for idx, b := range r.buffer.Bytes() {
 		if found := r.predicate(b); found {
 			r.reporter(idx, r.buffer.Bytes())
-			return
+			return true
 		}
 	}
+	return false
 }
 
 // IsNullByte returns true if we receive a 0 or null byte.
