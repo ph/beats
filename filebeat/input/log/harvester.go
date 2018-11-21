@@ -51,6 +51,7 @@ import (
 	"github.com/elastic/beats/filebeat/input/file"
 	"github.com/elastic/beats/filebeat/util"
 	"github.com/elastic/beats/libbeat/reader"
+	"github.com/elastic/beats/libbeat/reader/debug"
 	"github.com/elastic/beats/libbeat/reader/multiline"
 	"github.com/elastic/beats/libbeat/reader/readfile"
 	"github.com/elastic/beats/libbeat/reader/readfile/encoding"
@@ -558,7 +559,12 @@ func (h *Harvester) newLogFileReader() (reader.Reader, error) {
 		return nil, err
 	}
 
-	r, err = readfile.NewEncodeReader(h.log, h.encoding, h.config.BufferSize)
+	reader, err := appendDebugReaders(h.log, h.config.DebugReaders)
+	if err != nil {
+		return nil, err
+	}
+
+	r, err = readfile.NewEncodeReader(reader, h.encoding, h.config.BufferSize)
 	if err != nil {
 		return nil, err
 	}
@@ -582,4 +588,23 @@ func (h *Harvester) newLogFileReader() (reader.Reader, error) {
 	}
 
 	return readfile.NewLimitReader(r, h.config.MaxBytes), nil
+}
+
+func appendDebugReaders(reader io.Reader, configs map[string]*common.Config) (io.Reader, error) {
+	for key, config := range configs {
+		switch key {
+		case "detect_null_bytes":
+			c := debug.DefaultConfig
+			err := config.Unpack(&c)
+			reader, err = debug.NewReader(reader, c.BufferSize, c.MaxExecution, debug.IsNullByte, nil)
+			if err != nil {
+				return nil, err
+			}
+		default:
+			{
+				logp.Warn("Unknown debug reader named %s", key)
+			}
+		}
+	}
+	return reader, nil
 }

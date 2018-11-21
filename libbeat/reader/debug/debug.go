@@ -8,6 +8,18 @@ import (
 	"github.com/elastic/beats/libbeat/logp"
 )
 
+// Config is the config struct for the debug reader.
+type Config struct {
+	BufferSize   int `config:"buffer_size"`
+	MaxExecution int `config:"max_execution"`
+}
+
+// DefaultConfig is the default configuration for the debug reader.
+var DefaultConfig = Config{
+	BufferSize:   16 * 1024,
+	MaxExecution: 100,
+}
+
 const selector = "debug_reader"
 
 // MatchByteFunc receive a byte and returns true if the byte match the predicate.
@@ -62,7 +74,7 @@ func (r *Reader) Read(p []byte) (int, error) {
 		r.stopDebugReader.Do(func() {
 			// cleanup any remaining bytes in the buffer.
 			r.checkPendingBytes()
-			r.log.Debug("Stopping debug reader, max execution reached.")
+			r.log.Info("Stopping debug reader, max execution reached.")
 		})
 		return r.reader.Read(p)
 	}
@@ -70,7 +82,7 @@ func (r *Reader) Read(p []byte) (int, error) {
 	n, err := r.reader.Read(p)
 
 	r.startDebugReader.Do(func() {
-		r.log.Debug("Starting debug reader")
+		r.log.Info("Starting debug reader")
 	})
 
 	// We need to consume all the bytes in chunk from the original reader.
@@ -110,7 +122,7 @@ func (r *Reader) checkPendingBytes() {
 }
 
 func (r *Reader) logReporter(pos int, raw []byte) {
-	r.log.Debugf("Matching byte found, position %d raw: %+v", pos, raw)
+	r.log.Info("Matching byte found, position %d raw: %+v", pos, raw)
 }
 
 func (r *Reader) checkPredicate() bool {
