@@ -1,5 +1,6 @@
 require 'http'
 require 'json'
+require 'time'
 
 KIBANA_URL = "http://localhost:5601/zhu"
 KIBANA_USER = "elastic"
@@ -8,50 +9,71 @@ UUID = JSON.parse(File.read("../../data/meta.json"))["uuid"]
 
 
 def request()
-  tag_name = "test"
+  tag_name = "hello"
   headers = {
     "kbn-xsrf": "1"
   }
 
-  blocks = {
-    "type": "output",
-    "configs": [
-      {
-        "output": "elasticsearch",
-        "elasticsearch": {
-          "hosts": ["localhost:9200"],
-          "username":"elastic",
-          "password": KIBANA_PASSWORD,
-        }
+
+  # url = KIBANA_URL + "/api/beats/tag/" + tag_name
+
+  # payload = {
+  #   "color": "#ffffff"
+  # }
+  # r = HTTP.basic_auth(user: KIBANA_USER, pass: KIBANA_PASSWORD)
+  #   .headers(headers)
+  #   .put(url, json: payload)
+
+  # if ![200, 201].include?(r.code)
+  #   puts "bad response code when creating config block: #{r.code}"
+  # end
+  # puts r
+
+
+  blocks = [
+    {
+      "type" => "output",
+      "tag" => tag_name,
+      "description" => "amazing 1",
+      "last_updated" => Time.now().to_i(),
+      "config": {
+        "_sub_type" => "elasticsearch",
+        "hosts" => ["localhost:9200"],
+        "username" => "elastic",
+        "password" => KIBANA_PASSWORD,
       }
-    ]
-  }
+    },
+    # {
+    #   "type" => "input",
+    #   "description" => "amazing 2",
+    #   "tag" => tag_name,
+    #   "config": {
+    #     "_sub_type" => "log",
+    #     "paths" => "/var/log",
+    #   }
+    # },
+    # {
+    #   "type" => "input",
+    #   "description" => "amazing 3",
+    #   "tag" => tag_name,
+    #   "config": {
+    #     "_sub_type" => "log",
+    #     "paths" => "/var/another/log",
+    #   }
+    # },
+  ]
 
-  url = KIBANA_URL + "/api/beats/tag" + tag_name
-  data = {
-    "color": "#DD0A73",
-    "configuration_blocks": blocks,
-  }
+  url = KIBANA_URL + "/api/beats/configurations"
 
-  r = HTTP.basic_auth(user: KIBANA_USER, password: KIBANA_PASSWORD)
+  r = HTTP.basic_auth(user: KIBANA_USER, pass: KIBANA_PASSWORD)
     .headers(headers)
-    .post(url, json: data)
+    .put(url, json: blocks)
 
   if ![200, 201].include?(r.code)
-    puts "bad response code when creating config block: ${r.code}"
-    puts r
+    puts "bad response code when creating config block: #{r.code}"
   end
 
-
-  data = {"assignments": [{"beatId": UUID, "tag": tag_name}]}
-  url = KIBANA_URL + "/api/beats/agents_tags/assignments"
-
-  r = HTTP.basic_auth(user: KIBANA_USER, password: KIBANA_PASSWORD)
-    .headers(headers)
-    .post(url, json: data)
-
-  if ![200, 201].include?(r.code)
-    puts "bad response code when assignment tag to beat: ${r.code}"
-    puts r
-  end
+  puts r
 end
+
+request()
