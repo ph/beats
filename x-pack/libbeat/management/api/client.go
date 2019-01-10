@@ -7,6 +7,7 @@ package api
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/url"
 	"time"
@@ -76,6 +77,7 @@ func (c *Client) request(method, extraPath string,
 		err = extractError(result)
 	} else {
 		if err = json.Unmarshal(result, message); err != nil {
+			fmt.Println(string(result))
 			return statusCode, errors.Wrap(err, "error unmarshaling Kibana response")
 		}
 	}

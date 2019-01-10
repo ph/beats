@@ -28,7 +28,28 @@ func TestConfiguration(t *testing.T) {
 
 		assert.Equal(t, "false", r.URL.Query().Get("validSetting"))
 
-		fmt.Fprintf(w, `{"configuration_blocks":[{"type":"filebeat.modules","config":{"module":"apache2"}},{"type":"metricbeat.modules","config":{"module":"system","period":"10s"}}]}`)
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprintf(w, `{
+		"data": [
+			{
+				"type": "filebeat.modules",
+				"description": "filebeat module",
+				"tag": "tag-id",
+				"config": {
+					"module": "apache2"
+				}
+			},
+			{
+				"type": "metricbeat.modules",
+				"description": "metricbeat module",
+				"tag": "tag-id",
+				"config": {
+					"module": "system",
+					"period": "10s"
+				}
+			}
+			] }`)
+
 	}))
 	defer server.Close()
 

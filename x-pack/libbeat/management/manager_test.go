@@ -46,13 +46,13 @@ func TestConfigManager(t *testing.T) {
 	i := 0
 	responses := []string{
 		// Initial load
-		`{"configuration_blocks":[{"type":"test.block","config":{"module":"apache2"}}]}`,
+		`{"data":[{"type":"test.block","config":{"module":"apache2"}}]}`,
 
 		// No change, no reload
-		`{"configuration_blocks":[{"type":"test.block","config":{"module":"apache2"}}]}`,
+		`{"data":[{"type":"test.block","config":{"module":"apache2"}}]}`,
 
 		// Changed, reload
-		`{"configuration_blocks":[{"type":"test.block","config":{"module":"system"}}]}`,
+		`{"data":[{"type":"test.block","config":{"module":"system"}}]}`,
 	}
 	mux.Handle("/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, fmt.Sprintf("/api/beats/agent/%s/configuration?validSetting=true", id), r.RequestURI)
@@ -117,10 +117,10 @@ func TestRemoveItems(t *testing.T) {
 	i := 0
 	responses := []string{
 		// Initial load
-		`{"configuration_blocks":[{"type":"test.blocks","config":{"module":"apache2"}}]}`,
+		`{"data":[{"type":"test.blocks","config":{"module":"apache2"}}]}`,
 
 		// Return no blocks
-		`{"configuration_blocks":[]}`,
+		`{"data":[]}`,
 	}
 	mux.Handle("/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, responses[i])
@@ -187,7 +187,7 @@ func TestUnEnroll(t *testing.T) {
 	mux := http.NewServeMux()
 	i := 0
 	responses := []http.HandlerFunc{ // Initial load
-		responseText(`{"configuration_blocks":[{"type":"test.blocks","config":{"module":"apache2"}}]}`),
+		responseText(`{"data":[{"type":"test.blocks","config":{"module":"apache2"}}]}`),
 		http.NotFound,
 	}
 	mux.Handle("/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

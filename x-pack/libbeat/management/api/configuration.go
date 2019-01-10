@@ -5,6 +5,7 @@
 package api
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"reflect"
@@ -34,6 +35,45 @@ type ConfigBlocksWithType struct {
 // ConfigBlocks holds a list of type + configs objects
 type ConfigBlocks []ConfigBlocksWithType
 
+// UnmarshalJSON unserialize the configuration blocks.
+func (cb *ConfigBlocks) UnmarshalJSON(b []byte) error {
+	var resp []struct {
+		Type        string                 `json:"type"`
+		Description string                 `json:"description"`
+		Tag         string                 `json:"tag"`
+		Config      map[string]interface{} `json:"config"`
+	}
+
+	if err := json.Unmarshal(b, &resp); err != nil {
+		return err
+	}
+
+	for _, r := range resp {
+		configBlock := ConfigBlocksWithType{
+			Type:   r.Type,
+			Blocks: []*ConfigBlock{&ConfigBlock{Raw: r.Config}},
+		}
+		*cb = append(*cb, configBlock)
+	}
+
+	return nil
+}
+
+// aggregate loop through the config blocks and aggregates the block based on the type.
+func (cb *ConfigBlocks) aggregate() ConfigBlocks {
+	blocks := map[string][]*ConfigBlock{}
+	for _, block := range *cb {
+		blocks[block.Type] = append(blocks[block.Type], block.Blocks...)
+	}
+
+	var aggregate ConfigBlocks
+
+	for t, b := range blocks {
+		aggregate = append(aggregate, ConfigBlocksWithType{Type: t, Blocks: b})
+	}
+	return aggregate
+}
+
 // Config returns a common.Config object holding the config from this block
 func (c *ConfigBlock) Config() (*common.Config, error) {
 	return common.NewConfigFrom(c.Raw)
@@ -55,12 +95,9 @@ func (c *Client) Configuration(accessToken string, beatUUID uuid.UUID, configOK 
 	headers := http.Header{}
 	headers.Set("kbn-beats-access-token", accessToken)
 
-	resp := struct {
-		ConfigBlocks []*struct {
-			Type string                 `json:"type"`
-			Raw  map[string]interface{} `json:"config"`
-		} `json:"configuration_blocks"`
-	}{}
+	var resp struct {
+		Data ConfigBlocks `json:"data"`
+	}
 	url := fmt.Sprintf("/api/beats/agent/%s/configuration?validSetting=%t", beatUUID, configOK)
 	statusCode, err := c.request("GET", url, nil, headers, &resp)
 	if statusCode == http.StatusNotFound {
@@ -71,17 +108,7 @@ func (c *Client) Configuration(accessToken string, beatUUID uuid.UUID, configOK 
 		return nil, err
 	}
 
-	blocks := map[string][]*ConfigBlock{}
-	for _, block := range resp.ConfigBlocks {
-		blocks[block.Type] = append(blocks[block.Type], &ConfigBlock{Raw: block.Raw})
-	}
-
-	res := ConfigBlocks{}
-	for t, b := range blocks {
-		res = append(res, ConfigBlocksWithType{Type: t, Blocks: b})
-	}
-
-	return res, nil
+	return resp.Data.aggregate(), nil
 }
 
 // ConfigBlocksEqual returns true if the given config blocks are equal, false if not
