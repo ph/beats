@@ -102,6 +102,9 @@ https://github.com/elastic/beats/compare/v7.0.0-alpha2...master[Check the HEAD d
 - Require certificate authorities, certificate file, and key when SSL is enabled for the TCP input. {pull}12355[12355]
 - Load correct pipelines when system module is configured in modules.d. {pull}12340[12340]
 - Fix timezone offset parsing in system/syslog. {pull}12529[12529]
+- Require client_auth by default when ssl is enabled for TCP input {pull}12333[12333]
+- Require Certificate authorities, Certificate file and key when SSL is enabled for the TCP input. {pull}xxx[xxx]
+- Require Certificate authorities, Certificate file and key when SSL is enabled for the TCP input. {pull}12355[12355]
 
 *Heartbeat*
 
@@ -131,6 +134,12 @@ https://github.com/elastic/beats/compare/v7.0.0-alpha2...master[Check the HEAD d
 - Fix an issue listing all processes when run under Windows as a non-privileged user. {issue}12301[12301] {pull}12475[12475]
 - Require client_auth by default when ssl is enabled for module http metricset server{pull}12333[12333]
 - The `elasticsearch/index_summary` metricset gracefully handles an empty Elasticsearch cluster when `xpack.enabled: true` is set. {pull}12489[12489] {issue}12487[12487]
+- Require client_auth by default when SSL is enabled for module http metricset server{pull}12333[12333]
+- Require Certificate authorities, Certificate file and key when SSL is enabled for the TCP input. {pull}xxx[xxx]
+- Require Certificate authorities, Certificate file and key when SSL is enabled for module http server. {pull}12355[12355]
+- Require Certificate authorities, Certificate file and key when SSL is enabled for module http metricset server. {pull}12355[12355]
+- Require certificate authorities, certificate file and key when SSL is enabled for module http metricset server. {pull}12355[12355]
+- Require certificate authorities, certificate file, and key when SSL is enabled for module http metricset server. {pull}12355[12355]
 
 *Packetbeat*
 
