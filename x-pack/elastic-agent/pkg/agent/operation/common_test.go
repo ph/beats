@@ -41,7 +41,9 @@ func getTestOperator(t *testing.T, downloadPath string, installPath string, p *a
 			Delay:        3 * time.Second,
 			MaxDelay:     10 * time.Second,
 		},
-		ProcessConfig: &process.Config{},
+		ProcessConfig: &process.Config{
+			FailureTimeout: 1, // restart instantly
+		},
 		DownloadConfig: &artifact.Config{
 			TargetDirectory: downloadPath,
 			InstallPath:     installPath,
@@ -50,7 +52,7 @@ func getTestOperator(t *testing.T, downloadPath string, installPath string, p *a
 	}
 
 	l := getLogger()
-	agentInfo, _ := info.NewAgentInfo()
+	agentInfo, _ := info.NewAgentInfo(true)
 
 	fetcher := &DummyDownloader{}
 	verifier := &DummyVerifier{}
